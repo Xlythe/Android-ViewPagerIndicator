@@ -88,5 +88,5 @@ signing {
 
 dependencies {
     api fileTree(include: ['*.jar'], dir: 'libs')
-    api 'androidx.legacy:legacy-support-v4:+'
+    api 'androidx.legacy:legacy-support-v4:[1.0.0,)'
 }
