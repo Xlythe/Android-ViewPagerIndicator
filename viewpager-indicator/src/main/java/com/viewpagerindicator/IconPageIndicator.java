@@ -39,7 +39,6 @@ public class IconPageIndicator extends HorizontalScrollView implements PageIndic
     private ViewPager mViewPager;
     private ViewPager.OnPageChangeListener mListener;
     private Runnable mIconSelector;
-    private int mSelectedIndex;
 
     public IconPageIndicator(Context context) {
         this(context, null);
@@ -112,31 +111,31 @@ public class IconPageIndicator extends HorizontalScrollView implements PageIndic
         if (mViewPager == view) {
             return;
         }
-        if (mViewPager != null) {
-            mViewPager.setOnPageChangeListener(null);
-        }
         PagerAdapter adapter = view.getAdapter();
         if (adapter == null) {
             throw new IllegalStateException("ViewPager does not have adapter instance.");
         }
+        if (!(adapter instanceof IconPagerAdapter)) {
+            throw new IllegalArgumentException("IconPageIndicator requires an IconPagerAdapter");
+        }
+        if (mViewPager != null) {
+            mViewPager.removeOnPageChangeListener(this);
+        }
         mViewPager = view;
-        view.setOnPageChangeListener(this);
+        view.addOnPageChangeListener(this);
         notifyDataSetChanged();
     }
 
     public void notifyDataSetChanged() {
         mIconsLayout.removeAllViews();
         IconPagerAdapter iconAdapter = (IconPagerAdapter) mViewPager.getAdapter();
-        int count = iconAdapter.getCount();
+        int count = iconAdapter == null ? 0 : iconAdapter.getCount();
         for (int i = 0; i < count; i++) {
             ImageView view = new ImageView(getContext(), null, R.attr.vpiIconPageIndicatorStyle);
             view.setImageResource(iconAdapter.getIconResId(i));
             mIconsLayout.addView(view);
         }
-        if (mSelectedIndex > count) {
-            mSelectedIndex = count - 1;
-        }
-        setCurrentItem(mSelectedIndex);
+        setCurrentItem(mViewPager.getCurrentItem());
         requestLayout();
     }
 
@@ -151,8 +150,8 @@ public class IconPageIndicator extends HorizontalScrollView implements PageIndic
         if (mViewPager == null) {
             throw new IllegalStateException("ViewPager has not been bound.");
         }
-        mSelectedIndex = item;
         mViewPager.setCurrentItem(item);
+        item = mViewPager.getCurrentItem();
 
         int tabCount = mIconsLayout.getChildCount();
         for (int i = 0; i < tabCount; i++) {
