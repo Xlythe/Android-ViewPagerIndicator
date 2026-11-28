@@ -10,12 +10,10 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.RuntimeEnvironment;
-import org.robolectric.annotation.Config;
 
 import static org.junit.Assert.*;
 
 @RunWith(RobolectricTestRunner.class)
-@Config(sdk = 37)
 public class IndicatorTest {
     private final Context context = RuntimeEnvironment.getApplication();
     private static class Pages extends PagerAdapter implements IconPagerAdapter {
