@@ -6,17 +6,23 @@ Properties projectProperties = new Properties()
 projectProperties.load(rootProject.file('gradle.properties').newDataInputStream())
 
 Properties localProperties = new Properties()
-localProperties.load(project.rootProject.file('local.properties').newDataInputStream())
+File localFile = rootProject.file('local.properties')
+if (localFile.exists()) localFile.withInputStream { localProperties.load(it) }
 
 android {
-    compileSdkVersion 33
+    namespace 'com.viewpagerindicator'
+    compileSdk 37
 
     defaultConfig {
-        minSdkVersion 14
-        targetSdkVersion 33
+        minSdk 14
+        targetSdk 37
     }
-    lintOptions {
+    lint {
         abortOnError false
+    }
+    testOptions.unitTests {
+        includeAndroidResources = true
+        all { maxHeapSize = "2g" }
     }
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
@@ -87,6 +93,9 @@ signing {
 }
 
 dependencies {
+    testImplementation 'junit:junit:4.13.2'
+    testImplementation 'org.robolectric:robolectric:4.18.1'
     api fileTree(include: ['*.jar'], dir: 'libs')
-    api 'androidx.legacy:legacy-support-v4:[1.0.0,)'
+    api 'androidx.viewpager:viewpager:1.0.0'
+    api 'androidx.legacy:legacy-support-v4:1.0.0'
 }

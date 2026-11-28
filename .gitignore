@@ -5,3 +5,9 @@
 /build
 *.iml
 */build/*
+
+/gradlew
+
+/gradlew.bat
+
+/gradle/wrapper/

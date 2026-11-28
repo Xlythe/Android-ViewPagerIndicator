@@ -158,7 +158,7 @@ public class LinePageIndicator extends View implements PageIndicator {
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
 
-        if (mViewPager == null) {
+        if (mViewPager == null || mViewPager.getAdapter() == null) {
             return;
         }
         final int count = mViewPager.getAdapter().getCount();
@@ -195,7 +195,7 @@ public class LinePageIndicator extends View implements PageIndicator {
         if (super.onTouchEvent(ev)) {
             return true;
         }
-        if ((mViewPager == null) || (mViewPager.getAdapter().getCount() == 0)) {
+        if ((mViewPager == null) || mViewPager.getAdapter() == null || (mViewPager.getAdapter().getCount() == 0)) {
             return false;
         }
 
@@ -279,15 +279,16 @@ public class LinePageIndicator extends View implements PageIndicator {
         if (mViewPager == viewPager) {
             return;
         }
-        if (mViewPager != null) {
-            //Clear us from the old pager.
-            mViewPager.setOnPageChangeListener(null);
-        }
         if (viewPager.getAdapter() == null) {
             throw new IllegalStateException("ViewPager does not have adapter instance.");
         }
+        if (mViewPager != null) {
+            //Clear us from the old pager.
+            mViewPager.removeOnPageChangeListener(this);
+        }
         mViewPager = viewPager;
-        mViewPager.setOnPageChangeListener(this);
+        mCurrentPage = mViewPager.getCurrentItem();
+        mViewPager.addOnPageChangeListener(this);
         invalidate();
     }
 
@@ -358,7 +359,7 @@ public class LinePageIndicator extends View implements PageIndicator {
         int specMode = MeasureSpec.getMode(measureSpec);
         int specSize = MeasureSpec.getSize(measureSpec);
 
-        if ((specMode == MeasureSpec.EXACTLY) || (mViewPager == null)) {
+        if ((specMode == MeasureSpec.EXACTLY) || (mViewPager == null) || mViewPager.getAdapter() == null) {
             //We were told how big to be
             result = specSize;
         } else {

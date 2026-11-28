@@ -190,15 +190,15 @@ public class TabPageIndicator extends HorizontalScrollView implements PageIndica
         if (mViewPager == view) {
             return;
         }
-        if (mViewPager != null) {
-            mViewPager.setOnPageChangeListener(null);
-        }
         final PagerAdapter adapter = view.getAdapter();
         if (adapter == null) {
             throw new IllegalStateException("ViewPager does not have adapter instance.");
         }
+        if (mViewPager != null) {
+            mViewPager.removeOnPageChangeListener(this);
+        }
         mViewPager = view;
-        view.setOnPageChangeListener(this);
+        view.addOnPageChangeListener(this);
         notifyDataSetChanged();
     }
 
@@ -209,7 +209,7 @@ public class TabPageIndicator extends HorizontalScrollView implements PageIndica
         if (adapter instanceof IconPagerAdapter) {
             iconAdapter = (IconPagerAdapter)adapter;
         }
-        final int count = adapter.getCount();
+        final int count = adapter == null ? 0 : adapter.getCount();
         for (int i = 0; i < count; i++) {
             CharSequence title = adapter.getPageTitle(i);
             if (title == null) {
@@ -221,10 +221,7 @@ public class TabPageIndicator extends HorizontalScrollView implements PageIndica
             }
             addTab(i, title, iconResId);
         }
-        if (mSelectedTabIndex > count) {
-            mSelectedTabIndex = count - 1;
-        }
-        setCurrentItem(mSelectedTabIndex);
+        setCurrentItem(mViewPager.getCurrentItem());
         requestLayout();
     }
 
@@ -239,8 +236,9 @@ public class TabPageIndicator extends HorizontalScrollView implements PageIndica
         if (mViewPager == null) {
             throw new IllegalStateException("ViewPager has not been bound.");
         }
-        mSelectedTabIndex = item;
         mViewPager.setCurrentItem(item);
+        item = mViewPager.getCurrentItem();
+        mSelectedTabIndex = item;
 
         final int tabCount = mTabLayout.getChildCount();
         for (int i = 0; i < tabCount; i++) {
